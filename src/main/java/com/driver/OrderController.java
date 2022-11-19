@@ -2,6 +2,10 @@ package com.driver;
 
 import java.util.List;
 
+import com.driver.repository.OrderPartnerRepository;
+import com.driver.service.OrderPartnerService;
+import com.driver.service.impl.DeliveryPartnerImpl;
+import com.driver.service.impl.OrderServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,15 +24,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
 
-    @PostMapping("/add-order")
-    public ResponseEntity<String> addOrder(@RequestBody Order order){
+    @Autowired
+    OrderServiceImpl orderService;
 
+    @Autowired
+    DeliveryPartnerImpl deliveryService;
+
+    @Autowired
+    OrderPartnerService orderPartnerService;
+
+    @PostMapping("/add-order")
+    public ResponseEntity<String> addOrder(@RequestBody() Order order){
+
+        orderService.addOrder(order);
         return new ResponseEntity<>("New order added successfully", HttpStatus.CREATED);
     }
 
     @PostMapping("/add-partner/{partnerId}")
     public ResponseEntity<String> addPartner(@PathVariable String partnerId){
 
+        deliveryService.addPartner(partnerId);
         return new ResponseEntity<>("New delivery partner added successfully", HttpStatus.CREATED);
     }
 
@@ -36,53 +51,50 @@ public class OrderController {
     public ResponseEntity<String> addOrderPartnerPair(@RequestParam String orderId, @RequestParam String partnerId){
 
         //This is basically assigning that order to that partnerId
+        orderPartnerService.addOrderPartner(orderId, partnerId);
         return new ResponseEntity<>("New order-partner pair added successfully", HttpStatus.CREATED);
     }
 
     @GetMapping("/get-order-by-id/{orderId}")
-    public ResponseEntity<Order> getOrderById(@PathVariable String orderId){
+    public ResponseEntity<Order> getOrderById(@PathVariable() String orderId){
 
-        Order order= null;
-        //order should be returned with an orderId.
-
-        return new ResponseEntity<>(order, HttpStatus.CREATED);
+        return new ResponseEntity<>(orderService.getOrderById(orderId), HttpStatus.CREATED);
     }
 
     @GetMapping("/get-partner-by-id/{partnerId}")
     public ResponseEntity<DeliveryPartner> getPartnerById(@PathVariable String partnerId){
 
-        DeliveryPartner deliveryPartner = null;
+//        DeliveryPartner deliveryPartner = null;
 
         //deliveryPartner should contain the value given by partnerId
 
-        return new ResponseEntity<>(deliveryPartner, HttpStatus.CREATED);
+        return new ResponseEntity<>(deliveryService.getPartnerById(partnerId), HttpStatus.CREATED);
     }
 
     @GetMapping("/get-order-count-by-partner-id/{partnerId}")
     public ResponseEntity<Integer> getOrderCountByPartnerId(@PathVariable String partnerId){
 
-        Integer orderCount = 0;
+//        Integer orderCount = 0;
 
         //orderCount should denote the orders given by a partner-id
 
-        return new ResponseEntity<>(orderCount, HttpStatus.CREATED);
+        return new ResponseEntity<>(orderPartnerService.getOrderCountByPartnerId(partnerId), HttpStatus.CREATED);
     }
 
     @GetMapping("/get-orders-by-partner-id/{partnerId}")
     public ResponseEntity<List<String>> getOrdersByPartnerId(@PathVariable String partnerId){
-        List<String> orders = null;
+//        List<String> orders = null;
 
         //orders should contain a list of orders by PartnerId
 
-        return new ResponseEntity<>(orders, HttpStatus.CREATED);
+        return new ResponseEntity<>(orderPartnerService.getListOfOrdersByPartnerId(partnerId), HttpStatus.CREATED);
     }
 
     @GetMapping("/get-all-orders")
     public ResponseEntity<List<String>> getAllOrders(){
-        List<String> orders = null;
-
+//        List<String> orders = null;
         //Get all orders
-        return new ResponseEntity<>(orders, HttpStatus.CREATED);
+        return new ResponseEntity<>(orderService.getAllOrders(), HttpStatus.CREATED);
     }
 
     @GetMapping("/get-count-of-unassigned-orders")
